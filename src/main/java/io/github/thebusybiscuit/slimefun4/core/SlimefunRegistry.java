@@ -27,6 +27,7 @@ import io.github.thebusybiscuit.cscorelib2.collections.KeyMap;
 import io.github.thebusybiscuit.cscorelib2.config.Config;
 import io.github.thebusybiscuit.slimefun4.api.geo.GEOResource;
 import io.github.thebusybiscuit.slimefun4.api.player.PlayerProfile;
+import io.github.thebusybiscuit.slimefun4.core.config.SlimefunConfigManager;
 import io.github.thebusybiscuit.slimefun4.core.guide.SlimefunGuide;
 import io.github.thebusybiscuit.slimefun4.core.guide.SlimefunGuideImplementation;
 import io.github.thebusybiscuit.slimefun4.core.guide.SlimefunGuideMode;
@@ -63,18 +64,11 @@ public final class SlimefunRegistry {
     private final List<String> researchRanks = new ArrayList<>();
     private final Set<UUID> researchingPlayers = Collections.synchronizedSet(new HashSet<>());
 
-    // TODO: Move this all into a proper "config cache" class
-    private boolean backwardsCompatibility;
-    private boolean automaticallyLoadItems;
-    private boolean enableResearches;
-    private boolean freeCreativeResearches;
-    private boolean researchFireworks;
-    private boolean logDuplicateBlockEntries;
-    private boolean talismanActionBarMessages;
-
     private final Set<String> tickers = new HashSet<>();
     private final Set<SlimefunItem> radioactive = new HashSet<>();
     private final Set<ItemStack> barterDrops = new HashSet<>();
+
+    private boolean automaticallyLoadItems;
 
     private NamespacedKey soulboundKey;
     private NamespacedKey itemChargeKey;
@@ -92,25 +86,18 @@ public final class SlimefunRegistry {
     private final Map<String, UniversalBlockMenu> universalInventories = new HashMap<>();
     private final Map<Class<? extends ItemHandler>, Set<ItemHandler>> globalItemHandlers = new HashMap<>();
 
-    public void load(@Nonnull SlimefunPlugin plugin, @Nonnull Config cfg) {
+    public void load(@Nonnull SlimefunPlugin plugin) {
         Validate.notNull(plugin, "The Plugin cannot be null!");
-        Validate.notNull(cfg, "The Config cannot be null!");
 
         soulboundKey = new NamespacedKey(plugin, "soulbound");
         itemChargeKey = new NamespacedKey(plugin, "item_charge");
         guideKey = new NamespacedKey(plugin, "slimefun_guide_mode");
 
-        boolean showVanillaRecipes = cfg.getBoolean("guide.show-vanilla-recipes");
-        guides.put(SlimefunGuideMode.SURVIVAL_MODE, new SurvivalSlimefunGuide(showVanillaRecipes));
+        guides.put(SlimefunGuideMode.SURVIVAL_MODE, new SurvivalSlimefunGuide());
         guides.put(SlimefunGuideMode.CHEAT_MODE, new CheatSheetSlimefunGuide());
 
+        Config cfg = SlimefunPlugin.getConfigManager().getPluginConfig();
         researchRanks.addAll(cfg.getStringList("research-ranks"));
-
-        backwardsCompatibility = cfg.getBoolean("options.backwards-compatibility");
-        freeCreativeResearches = cfg.getBoolean("researches.free-in-creative-mode");
-        researchFireworks = cfg.getBoolean("researches.enable-fireworks");
-        logDuplicateBlockEntries = cfg.getBoolean("options.log-duplicate-block-entries");
-        talismanActionBarMessages = cfg.getBoolean("talismans.use-actionbar");
     }
 
     /**
@@ -123,29 +110,6 @@ public final class SlimefunRegistry {
      */
     public boolean isAutoLoadingEnabled() {
         return automaticallyLoadItems;
-    }
-
-    /**
-     * This method returns whether backwards-compatibility is enabled.
-     * Backwards compatibility allows Slimefun to recognize items from older versions but comes
-     * at a huge performance cost.
-     * 
-     * @return Whether backwards compatibility is enabled
-     */
-    public boolean isBackwardsCompatible() {
-        return backwardsCompatibility;
-    }
-
-    /**
-     * This method sets the status of backwards compatibility.
-     * Backwards compatibility allows Slimefun to recognize items from older versions but comes
-     * at a huge performance cost.
-     * 
-     * @param compatible
-     *            Whether backwards compatibility should be enabled
-     */
-    public void setBackwardsCompatible(boolean compatible) {
-        backwardsCompatibility = compatible;
     }
 
     /**
@@ -216,26 +180,6 @@ public final class SlimefunRegistry {
     @Nonnull
     public List<String> getResearchRanks() {
         return researchRanks;
-    }
-
-    public void setResearchingEnabled(boolean enabled) {
-        enableResearches = enabled;
-    }
-
-    public boolean isResearchingEnabled() {
-        return enableResearches;
-    }
-
-    public void setFreeCreativeResearchingEnabled(boolean enabled) {
-        freeCreativeResearches = enabled;
-    }
-
-    public boolean isFreeCreativeResearchingEnabled() {
-        return freeCreativeResearches;
-    }
-
-    public boolean isResearchFireworkEnabled() {
-        return researchFireworks;
     }
 
     /**
@@ -346,14 +290,6 @@ public final class SlimefunRegistry {
         return geoResources;
     }
 
-    public boolean logDuplicateBlockEntries() {
-        return logDuplicateBlockEntries;
-    }
-
-    public boolean useActionbarForTalismans() {
-        return talismanActionBarMessages;
-    }
-
     @Nonnull
     public NamespacedKey getSoulboundDataKey() {
         return soulboundKey;
@@ -367,6 +303,32 @@ public final class SlimefunRegistry {
     @Nonnull
     public NamespacedKey getGuideDataKey() {
         return guideKey;
+    }
+
+    /**
+     * This has been moved.
+     * Our metrics module accesses this though.
+     * 
+     * @deprecated Please use {@link SlimefunConfigManager#isFreeCreativeResearchingEnabled()}
+     * 
+     * @return free research in creative?
+     */
+    @Deprecated
+    public boolean isFreeCreativeResearchingEnabled() {
+        return SlimefunPlugin.getConfigManager().isFreeCreativeResearchingEnabled();
+    }
+
+    /**
+     * This has been moved.
+     * Our metrics module accesses this though.
+     * 
+     * @deprecated Please use {@link SlimefunConfigManager#isBackwardsCompatible()}
+     * 
+     * @return backwards compat?
+     */
+    @Deprecated
+    public boolean isBackwardsCompatible() {
+        return SlimefunPlugin.getConfigManager().isBackwardsCompatible();
     }
 
 }

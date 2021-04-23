@@ -67,7 +67,7 @@ class VersionsCommand extends SubCommand {
 
             addJavaVersion(builder);
 
-            if (SlimefunPlugin.getRegistry().isBackwardsCompatible()) {
+            if (SlimefunPlugin.getConfigManager().isBackwardsCompatible()) {
                 // @formatter:off
                 HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(
                     "Backwards compatibility has a negative impact on performance!\n" +

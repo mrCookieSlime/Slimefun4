@@ -141,13 +141,16 @@ public class ItemSetting<T> {
      * This method is called by a {@link SlimefunItem} which wants to load its {@link ItemSetting}
      * from the {@link Config} file.
      * 
+     * 
+     * @return Whether the value was successfully updated or misconfigured
      */
     @SuppressWarnings("unchecked")
-    public void reload() {
+    public boolean reload() {
         Validate.notNull(item, "Cannot apply settings for a non-existing SlimefunItem");
 
-        SlimefunPlugin.getItemCfg().setDefaultValue(item.getId() + '.' + getKey(), getDefaultValue());
-        Object configuredValue = SlimefunPlugin.getItemCfg().getValue(item.getId() + '.' + getKey());
+        Config config = SlimefunPlugin.getConfigManager().getItemsConfig();
+        config.setDefaultValue(item.getId() + '.' + getKey(), getDefaultValue());
+        Object configuredValue = config.getValue(item.getId() + '.' + getKey());
 
         if (defaultValue.getClass().isInstance(configuredValue)) {
             // We can do an unsafe cast here, we did an isInstance(...) check before!
@@ -155,6 +158,7 @@ public class ItemSetting<T> {
 
             if (validateInput(newValue)) {
                 this.value = newValue;
+                return true;
             } else {
                 // @formatter:off
                 item.warn(
@@ -164,6 +168,7 @@ public class ItemSetting<T> {
                         "\n" + getErrorMessage()
                 );
                 // @formatter:on
+                return false;
             }
         } else {
             this.value = defaultValue;
@@ -177,6 +182,7 @@ public class ItemSetting<T> {
                     "\n  Expected \"" + defaultValue.getClass().getSimpleName() + "\" but found: \"" + found + "\""
             );
             // @formatter:on
+            return false;
         }
     }
 

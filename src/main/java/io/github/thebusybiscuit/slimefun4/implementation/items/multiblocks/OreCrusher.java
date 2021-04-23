@@ -200,35 +200,43 @@ public class OreCrusher extends MultiBlockMachine {
         }
 
         @Override
-        public void reload() {
-            super.reload();
+        public boolean reload() {
+            boolean isSuccessful = super.reload();
             apply(getValue());
+            return isSuccessful;
         }
 
+        @Nonnull
         public ItemStack getCoal() {
             return coal;
         }
 
+        @Nonnull
         public ItemStack getLapisLazuli() {
             return lapis;
         }
 
+        @Nonnull
         public ItemStack getRedstone() {
             return redstone;
         }
 
+        @Nonnull
         public ItemStack getDiamond() {
             return diamond;
         }
 
+        @Nonnull
         public ItemStack getEmerald() {
             return emerald;
         }
 
+        @Nonnull
         public ItemStack getNetherQuartz() {
             return quartz;
         }
 
+        @Nonnull
         public ItemStack getGoldNuggets() {
             return goldNuggets;
         }

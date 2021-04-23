@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 
 import io.github.thebusybiscuit.cscorelib2.collections.OptionalMap;
+import io.github.thebusybiscuit.cscorelib2.config.Config;
 import io.github.thebusybiscuit.cscorelib2.inventory.ItemUtils;
 import io.github.thebusybiscuit.slimefun4.api.MinecraftVersion;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
@@ -454,13 +455,15 @@ public class SlimefunItem implements Placeable {
             SlimefunPlugin.getRegistry().getAllSlimefunItems().add(this);
             SlimefunPlugin.getRegistry().getSlimefunItemIds().put(id, this);
 
+            Config config = SlimefunPlugin.getConfigManager().getItemsConfig();
+
             // Items that are "not-configurable" cannot be configured.
             if (!(this instanceof NotConfigurable)) {
-                SlimefunPlugin.getItemCfg().setDefaultValue(id + ".enabled", true);
-                SlimefunPlugin.getItemCfg().setDefaultValue(id + ".can-be-used-in-workbenches", useableInWorkbench);
-                SlimefunPlugin.getItemCfg().setDefaultValue(id + ".hide-in-guide", hidden);
-                SlimefunPlugin.getItemCfg().setDefaultValue(id + ".allow-enchanting", enchantable);
-                SlimefunPlugin.getItemCfg().setDefaultValue(id + ".allow-disenchanting", disenchantable);
+                config.setDefaultValue(id + ".enabled", true);
+                config.setDefaultValue(id + ".can-be-used-in-workbenches", useableInWorkbench);
+                config.setDefaultValue(id + ".hide-in-guide", hidden);
+                config.setDefaultValue(id + ".allow-enchanting", enchantable);
+                config.setDefaultValue(id + ".allow-disenchanting", disenchantable);
 
                 // Load all item settings
                 for (ItemSetting<?> setting : itemSettings) {
@@ -468,7 +471,7 @@ public class SlimefunItem implements Placeable {
                 }
             }
 
-            if (ticking && !SlimefunPlugin.getCfg().getBoolean("URID.enable-tickers")) {
+            if (ticking && !SlimefunPlugin.getConfigManager().getPluginConfig().getBoolean("URID.enable-tickers")) {
                 state = ItemState.DISABLED;
                 return;
             }
@@ -479,13 +482,13 @@ public class SlimefunItem implements Placeable {
                  * Any other settings will remain as default.
                  */
                 state = ItemState.ENABLED;
-            } else if (SlimefunPlugin.getItemCfg().getBoolean(id + ".enabled")) {
+            } else if (config.getBoolean(id + ".enabled")) {
                 // The item has been enabled.
                 state = ItemState.ENABLED;
-                useableInWorkbench = SlimefunPlugin.getItemCfg().getBoolean(id + ".can-be-used-in-workbenches");
-                hidden = SlimefunPlugin.getItemCfg().getBoolean(id + ".hide-in-guide");
-                enchantable = SlimefunPlugin.getItemCfg().getBoolean(id + ".allow-enchanting");
-                disenchantable = SlimefunPlugin.getItemCfg().getBoolean(id + ".allow-disenchanting");
+                useableInWorkbench = config.getBoolean(id + ".can-be-used-in-workbenches");
+                hidden = config.getBoolean(id + ".hide-in-guide");
+                enchantable = config.getBoolean(id + ".allow-enchanting");
+                disenchantable = config.getBoolean(id + ".allow-disenchanting");
             } else if (this instanceof VanillaItem) {
                 // This item is a vanilla "mock" but was disabled.
                 state = ItemState.VANILLA_FALLBACK;
@@ -774,7 +777,7 @@ public class SlimefunItem implements Placeable {
         }
 
         // Backwards compatibility
-        if (SlimefunPlugin.getRegistry().isBackwardsCompatible()) {
+        if (SlimefunPlugin.getConfigManager().isBackwardsCompatible()) {
             boolean loreInsensitive = this instanceof Rechargeable || this instanceof SlimefunBackpack || id.equals("BROKEN_SPAWNER") || id.equals("REINFORCED_SPAWNER");
             return SlimefunUtils.isItemSimilar(item, this.itemStackTemplate, !loreInsensitive);
         } else {
@@ -1165,7 +1168,7 @@ public class SlimefunItem implements Placeable {
         }
 
         // Backwards compatibility
-        if (SlimefunPlugin.getRegistry().isBackwardsCompatible()) {
+        if (SlimefunPlugin.getConfigManager().isBackwardsCompatible()) {
             // This wrapper improves the heavy ItemStack#getItemMeta() call by caching it.
             ItemStackWrapper wrapper = new ItemStackWrapper(item);
 
