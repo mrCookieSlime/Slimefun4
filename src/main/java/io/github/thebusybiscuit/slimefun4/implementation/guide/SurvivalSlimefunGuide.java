@@ -52,6 +52,7 @@ import me.mrCookieSlime.Slimefun.Lists.RecipeType;
 import me.mrCookieSlime.Slimefun.Objects.Category;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
 import me.mrCookieSlime.Slimefun.api.Slimefun;
+import org.bukkit.inventory.meta.ItemMeta;
 
 /**
  * The {@link SurvivalSlimefunGuide} is the standard version of our {@link SlimefunGuide}.
@@ -541,11 +542,26 @@ public class SurvivalSlimefunGuide implements SlimefunGuideImplementation {
             return false;
         };
 
+        MenuClickHandler lockedClickHandler = (pl, slot, itemstack, action) -> {
+            try {
+                SlimefunItem sfitem = SlimefunItem.getByItem(itemstack);
+                this.unlockItem(pl, sfitem, player -> displayItem(profile, itemstack, 0, true));
+            } catch (Exception | LinkageError x) {
+                printErrorMessage(pl, x);
+            }
+            return false;
+        };
+
         boolean isSlimefunRecipe = item instanceof SlimefunItem;
 
         for (int i = 0; i < 9; i++) {
             ItemStack recipeItem = getDisplayItem(p, isSlimefunRecipe, recipe[i]);
-            menu.addItem(recipeSlots[i], recipeItem, clickHandler);
+
+            if (recipeItem instanceof UnlockableItemStack) {
+                menu.addItem(recipeSlots[i], ((UnlockableItemStack) recipeItem).getItemStack(), lockedClickHandler);
+            } else {
+                menu.addItem(recipeSlots[i], recipeItem, clickHandler);
+            }
 
             if (recipeItem != null && item instanceof MultiBlockMachine) {
                 for (Tag<Material> tag : MultiBlock.getSupportedTags()) {
@@ -622,12 +638,20 @@ public class SurvivalSlimefunGuide implements SlimefunGuideImplementation {
         if (isSlimefunRecipe) {
             SlimefunItem slimefunItem = SlimefunItem.getByItem(item);
 
-            if (slimefunItem == null) {
+            if (slimefunItem == null || slimefunItem.canUse(p, false)) {
+                // Return if the item is usable or isn't a Slimefun item
                 return item;
             }
 
-            String lore = Slimefun.hasPermission(p, slimefunItem, false) ? "&fNeeds to be unlocked elsewhere" : "&fNo Permission";
-            return slimefunItem.canUse(p, false) ? item : new CustomItem(Material.BARRIER, ItemUtils.getItemName(item), "&4&l" + SlimefunPlugin.getLocalization().getMessage(p, "guide.locked"), "", lore);
+            if (!SlimefunPlugin.getPermissionsService().hasPermission(p, slimefunItem)) {
+                return new CustomItem(Material.BARRIER, ItemUtils.getItemName(item), "&4&l" + SlimefunPlugin.getLocalization().getMessage(p, "guide.locked"), "", "&fNo Permission");
+            } else {
+                ItemStack result = slimefunItem.getItem().clone();
+                if (!result.hasItemMeta()) {
+                    return new CustomItem(Material.BARRIER, ItemUtils.getItemName(item));
+                }
+                return new UnlockableItemStack(result, slimefunItem, p);
+            }
         } else {
             return item;
         }
