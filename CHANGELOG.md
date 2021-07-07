@@ -32,6 +32,8 @@
 * Diamonds can now be ground into Carbon using a Grind Stone
 * Deepslate ores can now be doubled using an Ore Crusher
 * Tridents can now be crafted
+* Added sound effects for Slime Boots
+* Added `sounds.yml` file to configure sound effects for Slimefun
 
 #### Changes
 
