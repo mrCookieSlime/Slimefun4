@@ -17,13 +17,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import io.github.thebusybiscuit.cscorelib2.inventory.ItemUtils;
-import io.github.thebusybiscuit.cscorelib2.materials.MaterialConverter;
+import io.github.bakedlibs.dough.items.ItemUtils;
+import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlockMachine;
-import io.github.thebusybiscuit.slimefun4.implementation.SlimefunPlugin;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.items.blocks.OutputChest;
-import me.mrCookieSlime.Slimefun.Objects.Category;
-import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 
 /**
  * The {@link TableSaw} is an implementation of a {@link MultiBlockMachine} that allows
@@ -41,11 +40,11 @@ public class TableSaw extends MultiBlockMachine {
 
     private final List<ItemStack> displayedRecipes = new ArrayList<>();
 
-    public TableSaw(Category category, SlimefunItemStack item) {
+    public TableSaw(ItemGroup category, SlimefunItemStack item) {
         super(category, item, new ItemStack[] { null, null, null, new ItemStack(Material.SMOOTH_STONE_SLAB), new ItemStack(Material.STONECUTTER), new ItemStack(Material.SMOOTH_STONE_SLAB), null, new ItemStack(Material.IRON_BLOCK), null }, BlockFace.SELF);
 
         for (Material log : Tag.LOGS.getValues()) {
-            Optional<Material> planks = MaterialConverter.getPlanksFromLog(log);
+            Optional<Material> planks = getPlanks(log);
 
             if (planks.isPresent()) {
                 displayedRecipes.add(new ItemStack(log));
@@ -59,6 +58,11 @@ public class TableSaw extends MultiBlockMachine {
         }
     }
 
+    private @Nonnull Optional<Material> getPlanks(@Nonnull Material log) {
+        // TODO: Return plank for corresponding log
+        return Optional.empty();
+    }
+
     @Override
     public List<ItemStack> getDisplayRecipes() {
         return displayedRecipes;
@@ -70,7 +74,7 @@ public class TableSaw extends MultiBlockMachine {
         ItemStack output = getOutputFromMaterial(item.getType());
 
         if (output == null) {
-            SlimefunPlugin.getLocalization().sendMessage(p, "machines.wrong-item", true);
+            Slimefun.getLocalization().sendMessage(p, "machines.wrong-item", true);
             return;
         }
 
@@ -82,10 +86,9 @@ public class TableSaw extends MultiBlockMachine {
         b.getWorld().playEffect(b.getLocation(), Effect.STEP_SOUND, item.getType());
     }
 
-    @Nullable
-    private ItemStack getOutputFromMaterial(@Nonnull Material item) {
+    private @Nullable ItemStack getOutputFromMaterial(@Nonnull Material item) {
         if (Tag.LOGS.isTagged(item)) {
-            Optional<Material> planks = MaterialConverter.getPlanksFromLog(item);
+            Optional<Material> planks = getPlanks(item);
 
             if (planks.isPresent()) {
                 return new ItemStack(planks.get(), 8);

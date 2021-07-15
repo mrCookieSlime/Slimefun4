@@ -16,18 +16,18 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import io.github.thebusybiscuit.cscorelib2.chat.ChatColors;
-import io.github.thebusybiscuit.cscorelib2.inventory.ItemUtils;
+import io.github.bakedlibs.dough.common.ChatColors;
+import io.github.bakedlibs.dough.items.ItemUtils;
+import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
 import io.github.thebusybiscuit.slimefun4.api.player.PlayerBackpack;
 import io.github.thebusybiscuit.slimefun4.api.player.PlayerProfile;
 import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlockMachine;
-import io.github.thebusybiscuit.slimefun4.implementation.SlimefunPlugin;
+import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.implementation.items.backpacks.SlimefunBackpack;
 import io.github.thebusybiscuit.slimefun4.utils.PatternUtils;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
-import me.mrCookieSlime.Slimefun.Objects.Category;
-import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
-import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 
 /**
  * This abstract super class is responsible for some utility methods for machines which
@@ -43,7 +43,7 @@ import me.mrCookieSlime.Slimefun.api.SlimefunItemStack;
 abstract class AbstractCraftingTable extends MultiBlockMachine {
 
     @ParametersAreNonnullByDefault
-    AbstractCraftingTable(Category category, SlimefunItemStack item, ItemStack[] recipe, BlockFace trigger) {
+    AbstractCraftingTable(ItemGroup category, SlimefunItemStack item, ItemStack[] recipe, BlockFace trigger) {
         super(category, item, recipe, trigger);
     }
 
@@ -105,7 +105,7 @@ abstract class AbstractCraftingTable extends MultiBlockMachine {
 
                     PlayerProfile.get(p, profile -> {
                         int backpackId = profile.createBackpack(size).getId();
-                        SlimefunPlugin.getBackpackListener().setBackpackId(p, output, target, backpackId);
+                        Slimefun.getBackpackListener().setBackpackId(p, output, target, backpackId);
                     });
 
                     break;
